@@ -5,7 +5,6 @@ from main import db
 
 from .status import Status
 from .operation import Operation
-from .record import Record
 
 class User(db.Model):
     id = Column(Integer, primary_key=True)
@@ -29,10 +28,12 @@ class User(db.Model):
         return user
 
     def has_enough_credit(self,operation: Operation) -> bool:
+        from .record import Record
         last_record = Record.get_last_user_record(self)
         return last_record.user_balance >= operation.cost
 
     def balance(self) -> int:
+        from .record import Record
         last_record = Record.get_last_user_record(self)
         return last_record.user_balance
 
