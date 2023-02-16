@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from sqlalchemy import Integer,Enum,Double,Column, String, ForeignKey, Date
 from sqlalchemy.orm import relationship, mapped_column
 
 from .operation import Operation
 from .user import User
-
 from main import db
 
 class Record(db.Model):
@@ -22,5 +23,13 @@ class Record(db.Model):
         self.user = user
         self.operation_response = operation_response
         self.user_balance = user_balance
-        self.amount = amount if amount else - operation.cost
+        self.amount = amount if amount is not None else - operation.cost
+
+    def get_last_user_record(user: User) -> Record:
+        record = db.query(Record)\
+            .filter(Record.user==user)\
+            .order_by(-Record.id)\
+            .first()
+
+        return record
         

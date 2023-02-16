@@ -1,3 +1,4 @@
+from __future__ import annotations
 import enum
 
 from sqlalchemy import Integer,Enum,Double,Column
@@ -18,7 +19,7 @@ class Operation(db.Model):
     type = Column(Enum(OperationTypes))
 
     @staticmethod
-    def get_by_type(type: OperationTypes):
+    def get_by_type(type: OperationTypes) -> Operation:
         operation = db.session.query(Operation).filter(Operation.type==type).first()
         return operation
 

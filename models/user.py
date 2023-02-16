@@ -1,7 +1,11 @@
+from __future__ import annotations
+
 from sqlalchemy import Integer,Enum,Double,Column, String
 from main import db
 
 from .status import Status
+from .operation import Operation
+from .record import Record
 
 class User(db.Model):
     id = Column(Integer, primary_key=True)
@@ -15,12 +19,21 @@ class User(db.Model):
         self.status = status
 
     @staticmethod
-    def get_by_id(id: int):
+    def get_by_id(id: int) -> User:
         user = db.session.query(User).filter(User.id==id).first()
         return user
 
     @staticmethod
-    def get_by_username(username: str):
+    def get_by_username(username: str) -> User:
         user = db.session.query(User).filter(User.username==username).first()
         return user
+
+    def has_enough_credit(self,operation: Operation) -> bool:
+        last_record = Record.get_last_user_record(self)
+        return last_record.user_balance >= operation.cost
+
+    def balance(self) -> int:
+        last_record = Record.get_last_user_record(self)
+        return last_record.user_balance
+
         
