@@ -28,10 +28,7 @@ class Record(db.Model):
         self.operation_id = operation.id
 
     def get_last_user_record(user: User) -> Record:
-        record = db.query(Record)\
-            .filter(Record.user==user)\
-            .order_by(-Record.id)\
-            .first()
+        record = db.session.query(Record).filter(Record.user==user).order_by(-Record.id).first()
 
         return record
         

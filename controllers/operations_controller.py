@@ -5,7 +5,7 @@ import random
 
 from flask import request
 from jsonschema import validate
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, get_jwt
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, get_jwt, verify_jwt_in_request
 
 
 from .response_helper import responde
@@ -33,7 +33,7 @@ class OperationController:
                     'enum': [operation.value for operation in OperationTypes]
                 }
             },
-            'required': ['username','password']
+            'required': ['operand_1','operation_type']
         }
         return user_schema
 
@@ -45,7 +45,8 @@ class OperationController:
             validate(instance=body,schema=OperationController.operation_schema())
         except Exception as e:
             return responde(400,True,e.message,None)
-        claims = get_jwt()
+        verify_jwt_in_request()
+        claims = get_jwt()['sub']
         user = User.get_by_id(claims['user_id'])
         operation_type = OperationTypes[body['operation_type']]
         operation = Operation.get_by_type(operation_type)
@@ -58,18 +59,22 @@ class OperationController:
             
         result = None
         operand_1 = float(body['operand_1'])
-        operand_2 = float(body['operand_2'])
+        operand_2 = float(body['operand_2']) if 'operand_2' in body else None
         try:
             if operation.type == OperationTypes.ADDITION:
+                if operand_2 is None: raise Exception('Operand 2 must be provided')
                 result = operand_1 + operand_2
             elif operation.type == OperationTypes.MULTIPLICATION:
+                if operand_2 is None: raise Exception('Operand 2 must be provided')
                 result = operand_1 * operand_2
             elif operation.type == OperationTypes.DIVISION:
                 if operand_2 == 0: raise Exception('Dividend can not be equal to zero')
+                if operand_2 is None: raise Exception('Operand 2 must be provided')
                 result = operand_1 / operand_2
             elif operation.type == OperationTypes.SUBSTRACTION:
+                if operand_2 is None: raise Exception('Operand 2 must be provided')
                 result = operand_1 - operand_2
-            elif operation.type == OperationTypes.SUBSTRACTION:
+            elif operation.type == OperationTypes.SQUARE_ROOT:
                 if operand_1 < 0: raise Exception('Can not get squared root of negative number')
                 result = math.sqrt(operand_1)
             elif operation.type == OperationTypes.RANDOM_STRING:
@@ -83,7 +88,7 @@ class OperationController:
             failed_record = Record(operation,user,None,user.balance(),0)
             db.session.add(failed_record)
             db.session.commit()
-            return responde(200,True,'Error in the operation',e.message)
+            return responde(200,True,'Error in the operation',str(e))
 
 
     @staticmethod
