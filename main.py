@@ -29,4 +29,9 @@ from models.user import User
 # Needed for DB migrations
 migrate = Migrate(app, db)
 
+# Routes
+from routes.user_routes import user_routes
+
+app.register_blueprint(user_routes, url_prefix='/user')
+
 

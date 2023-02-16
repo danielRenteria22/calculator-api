@@ -1,10 +1,15 @@
 from flask import request
 from jsonschema import validate
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
+
 
 from .response_helper import responde
 from .utils import encodePassword,checkPassword
 from main import db
+from models.user import User
+from models.operation import Operation, OperationTypes
+from models.status import Status
+from models.record import Record
 
 class UserController:
     @staticmethod
@@ -41,10 +46,6 @@ class UserController:
         
     @staticmethod
     def create_user():
-        from models.user import User
-        from models.operation import Operation
-        from models.status import Status
-
         body = request.get_json(force=True)
         try:
             validate(instance=body,schema=UserController.user_schema())
@@ -52,8 +53,11 @@ class UserController:
             return responde(400,True,e.message,None)
 
         new_user = User(body['username'],encodePassword(body['password_hash']),Status.ACTIVE)
+        add_credit_operation = Operation.get_by_type(OperationTypes.ADD_CREDIT)
+        initial_record = Record(add_credit_operation,new_user,200,200,200)
         try:
             db.session.add(new_user)
+            db.session.add(initial_record)
             db.session.commit()
             return responde(200,False,'User was created successfully',None)
         except:
@@ -66,9 +70,7 @@ class UserController:
             validate(instance=body,schema=UserController.login_schema())
         except Exception as e:
             return responde(400,True,e.message,None)
-
-        from models.user import User
-        user = db.session.query(User).filter(User.username==body['username']).first()
+        user = User.get_by_username(body['username'])
         if not user: return responde(401,True,'Invalid credentials',None)
         if not checkPassword(body['password'],user.password_hash):
             return responde(401,True,'Invalid credentials',None)
@@ -77,6 +79,12 @@ class UserController:
             'refresh_token': create_refresh_token(user.id)
         }
         return responde(200,False,'Successful login',{'access_token': data})
+
+    @staticmethod
+    def refresh_token():
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity=identity)
+        return responde(200,False,'Token Refreshed',{'access_token': access_token})
         
 
         
