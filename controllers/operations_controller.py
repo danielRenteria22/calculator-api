@@ -37,6 +37,34 @@ class OperationController:
         }
         return user_schema
 
+    @staticmethod
+    def operation_schema():
+        list_records_schema = {
+            'type' : 'object',
+            'properties' : {
+                'page': {
+                    'type': 'integer'
+                },
+                'items_per_page': {
+                    'type': 'integer'
+                },
+                'operation_type': {
+                    'type': 'string',
+                    'enum': [operation.value for operation in OperationTypes]
+                },
+                'oder_by': {
+                    'type': 'string',
+                    'enum': ['created_by','operation_type','amount']
+                },
+                'order': {
+                    'type': 'string',
+                    'enum': ['desc','asc']
+                }
+            },
+            'required': ['page','items_per_page']
+        }
+        return list_records_schema
+
     
     @staticmethod
     def perform_operation():
@@ -89,6 +117,49 @@ class OperationController:
             db.session.add(failed_record)
             db.session.commit()
             return responde(200,True,'Error in the operation',str(e))
+
+    @staticmethod
+    def get_records():
+        body = request.get_json(force=True)
+        try:
+            validate(instance=body,schema=OperationController.operation_schema())
+        except Exception as e:
+            return responde(400,True,e.message,None)
+        verify_jwt_in_request()
+        claims = get_jwt()['sub']
+        user = User.get_by_id(claims['user_id'])
+        
+        query = Record.query.filter(Record.user_id==user.id)
+        if 'operation_type' in body:
+            operation_type = OperationTypes[body['operation_type']]
+            operation = Operation.get_by_type(operation_type)
+            query = query.filter(Record.operation_id==operation.id)
+        
+        if 'oder_by' in body and 'order' in body:
+            if body['oder_by'] == 'operation_type':
+                order = Record.operation_id
+            elif body['oder_by'] == 'amount':
+                order = Record.amount
+            
+            if body['order'] == 'asc':
+                order = order.asc()
+            elif body['order'] == 'desc':
+                order = order.desc()
+
+            query = query.order_by(order)
+
+        try:
+            page = query.paginate(page=int(body['page']), per_page=int(body['items_per_page']))
+            data = {
+                'records': [r.to_json() for r in page.items],
+                'next_page': page.has_next
+            }
+            return responde(200,False,'Records fetched correctly',data)
+        except Exception as e:
+            print(str(e))
+            return responde(500,True,'Aun unexpected error ocurred',None)
+
+
 
 
     @staticmethod

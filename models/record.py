@@ -31,4 +31,15 @@ class Record(db.Model):
         record = db.session.query(Record).filter(Record.user==user).order_by(-Record.id).first()
 
         return record
+
+    def to_json(self) -> dict:
+        return {
+            'id': self.id,
+            'operation_id': self.operation_id,
+            'user_id': self.user_id,
+            'amount': self.amount,
+            'user_balance': self.user_balance,
+            'operation_response': self.operation_response,
+        }
+
         
