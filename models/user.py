@@ -8,3 +8,9 @@ class User(db.Model):
     username = Column(String)
     password_hash = Column(String)
     status = Column(Enum(Status))
+
+    def __init__(self,username,password_hash,status: Status) -> None:
+        self.username = username
+        self.password_hash = password_hash
+        self.status = status
+        
