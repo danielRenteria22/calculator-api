@@ -31,7 +31,9 @@ migrate = Migrate(app, db)
 
 # Routes
 from routes.user_routes import user_routes
+from routes.operation_routes import operation_routes
 
 app.register_blueprint(user_routes, url_prefix='/user')
+app.register_blueprint(operation_routes, url_prefix='/operation')
 
 
