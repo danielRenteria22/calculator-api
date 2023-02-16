@@ -36,7 +36,9 @@ class UserController:
             'type' : 'object',
             'properties' : {
                 'username': {
-                    'type': 'email'
+                    'type': 'string',
+                    'format': 'email',
+                    "pattern": "^\\S+@\\S+\\.\\S+$",
                 },
                 'password': {
                     'type': 'string'
