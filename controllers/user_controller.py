@@ -18,7 +18,9 @@ class UserController:
             'type' : 'object',
             'properties' : {
                 'username': {
-                    'type': 'email'
+                    'type': 'string',
+                    'format': 'email',
+                    "pattern": "^\\S+@\\S+\\.\\S+$",
                 },
                 'password': {
                     'type': 'string'
@@ -52,7 +54,7 @@ class UserController:
         except Exception as e:
             return responde(400,True,e.message,None)
 
-        new_user = User(body['username'],encodePassword(body['password_hash']),Status.ACTIVE)
+        new_user = User(body['username'],encodePassword(body['password']),Status.ACTIVE)
         add_credit_operation = Operation.get_by_type(OperationTypes.ADD_CREDIT)
         initial_record = Record(add_credit_operation,new_user,200,200,200)
         try:

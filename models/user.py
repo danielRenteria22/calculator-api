@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+from __future__ import annotations
+from typing import List
+
 from sqlalchemy import Integer,Enum,Double,Column, String
+from sqlalchemy.orm import relationship,Mapped
 from main import db
 
 from .status import Status
 from .operation import Operation
+from .record import Record
 
 class User(db.Model):
     id = Column(Integer, primary_key=True)
     username = Column(String)
     password_hash = Column(String)
     status = Column(Enum(Status))
+    records = relationship("Record", back_populates="user")
 
     def __init__(self,username,password_hash,status: Status) -> None:
         self.username = username
