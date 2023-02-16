@@ -12,6 +12,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 # All models from migration
 from models.operation import Operation
+from models.record import Record
+from models.user import User
+
 migrate = Migrate(app, db)
 
 
