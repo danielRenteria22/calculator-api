@@ -1,7 +1,7 @@
 import enum
 
 from sqlalchemy import Integer,Enum,Double,Column
-from flask_sqlalchemy import Model
+from main import db
 
 class OperationTypes(enum.Enum):
     ADDITION = "ADDITION"
@@ -11,9 +11,9 @@ class OperationTypes(enum.Enum):
     SQUARE_ROOT = "SQUARE_ROOT"
     RANDOM_STRING = "RANDOM_STRING"
 
-class Operation(Model):
+class Operation(db.Model):
     id = Column(Integer, primary_key=True)
-    cost = Column(Integer,min=0)
+    cost = Column(Integer)
     type = Column(Enum(OperationTypes))
 
 
