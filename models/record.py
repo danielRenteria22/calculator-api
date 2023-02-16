@@ -13,7 +13,7 @@ class Record(db.Model):
     user_id = mapped_column(ForeignKey('user.id'))
     amount = Column(Integer)
     user_balance = Column(Integer)
-    operation_response = Column(Integer)
+    operation_response = Column(String)
     
     operation = relationship('Operation',back_populates='children')
     user = relationship('User',back_populates='children')

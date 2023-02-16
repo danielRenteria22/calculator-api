@@ -75,7 +75,7 @@ class OperationController:
             elif operation.type == OperationTypes.RANDOM_STRING:
                 result = OperationController.get_random_string()
 
-            new_record = Record(operation,user,int(result),user.balance() - operation.cost)
+            new_record = Record(operation,user,str(result),user.balance() - operation.cost)
             db.session.add(new_record)
             db.session.commit()
             return responde(200,False,'Operation succeded',result)
