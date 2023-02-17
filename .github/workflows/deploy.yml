@@ -58,7 +58,7 @@ jobs:
 
       - name: Upgrade database
         run: |
-          DATABASE_URI=${{ secrets.PROD_DATABSE_URI }}
+          DATABSE_URI=${{ secrets.PROD_DATABSE_URI }}
           flask db upgrade
 
       - name: Set app.yml values
