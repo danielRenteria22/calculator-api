@@ -26,6 +26,6 @@ def downgrade():
     op.execute("CREATE TYPE operationtypes AS ENUM('ADDITION', 'SUBSTRACTION', 'MULTIPLICATION', 'DIVISION', 'SQUARE_ROOT', 'RANDOM_STRING')")
     op.execute((
         "ALTER TABLE operation ALTER COLUMN type TYPE operationtypes USING "
-        "status::text::operationtypes"
+        "type::text::operationtypes"
     ))
     op.execute("DROP TYPE operationtypes_old")

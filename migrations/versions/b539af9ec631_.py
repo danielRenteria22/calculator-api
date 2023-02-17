@@ -33,6 +33,7 @@ def downgrade():
         batch_op.alter_column('operation_response',
                existing_type=sa.String(),
                type_=sa.DOUBLE_PRECISION(precision=53),
-               existing_nullable=True)
+               existing_nullable=True,
+               postgresql_using='operation_response::double precision')
 
     # ### end Alembic commands ###
