@@ -1,7 +1,7 @@
 name: 'Deploy main branch to GCP App Engine'
 
 env:
-  DATABASE_URI: ${{ secrets.DEV_DATABSE_URI }}
+  DATABSE_URI: ${{ secrets.DEV_DATABSE_URI }}
   SECRET_KEY: ${{ secrets.DEV_SECRET_KEY }}
   JWT_SECRET_KEY: ${{ secrets.DEV_JWT_SECRET_KEY }}
   RANDOM_API_KEY: ${{ secrets.DEV_RANDOM_API_KEY }}
