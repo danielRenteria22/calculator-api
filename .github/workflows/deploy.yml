@@ -1,0 +1,76 @@
+name: 'Deploy main branch to GCP App Engine'
+
+env:
+  DATABASE_URI: ${{ secrets.DEV_DATABSE_URI }}
+  SECRET_KEY: ${{ secrets.DEV_SECRET_KEY }}
+  JWT_SECRET_KEY: ${{ secrets.DEV_JWT_SECRET_KEY }}
+  RANDOM_API_KEY: ${{ secrets.DEV_RANDOM_API_KEY }}
+  PROD_DATABASE_URI: ${{ secrets.PROD_DATABSE_URI }}
+  PROD_SECRET_KEY: ${{ secrets.PROD_SECRET_KEY }}
+  PROD_JWT_SECRET_KEY: ${{ secrets.PROD_JWT_SECRET_KEY }}
+  PROD_RANDOM_API_KEY: ${{ secrets.PROD_RANDOM_API_KEY }}
+  FLASK_APP: main.py
+  FLASK_DEBUG: 1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+  
+permissions:
+      contents: 'read'
+      id-token: 'write'
+
+jobs:
+  deploy:
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+      - name: Check out
+        uses: 'actions/checkout@v3'
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run pytest tests
+        run: |
+          echo "Running tests"
+          pytest tests
+          success=$?
+          if [ "$success" -ne 0 ]; then
+            echo "Tests failed"
+            exit 1
+          fi
+
+      - name: Upgrade database
+        run: |
+          DATABASE_URI=${{ secrets.PROD_DATABSE_URI }}
+          flask db upgrade
+
+      - name: Set app.yml values
+        run: |
+          bash set_gcloud_env.sh
+          
+          
+        
+      - name: GCP Authentication
+        uses: google-github-actions/auth@v1
+        with:
+            workload_identity_provider: 'projects/522263500539/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+            service_account: 'my-service-account@directed-mender-261200.iam.gserviceaccount.com'
+      - name: AppEngine Deploy
+        uses: 'google-github-actions/deploy-appengine@v1'
