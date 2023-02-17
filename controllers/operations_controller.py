@@ -38,7 +38,7 @@ class OperationController:
         return user_schema
 
     @staticmethod
-    def operation_schema():
+    def list_schema():
         list_records_schema = {
             'type' : 'object',
             'properties' : {
@@ -122,7 +122,7 @@ class OperationController:
     def get_records():
         body = request.get_json(force=True)
         try:
-            validate(instance=body,schema=OperationController.operation_schema())
+            validate(instance=body,schema=OperationController.list_schema())
         except Exception as e:
             return responde(400,True,e.message,None)
         verify_jwt_in_request()
