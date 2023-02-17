@@ -6,10 +6,11 @@ from sqlalchemy.orm import relationship, mapped_column
 
 from main import db
 from .operation import Operation
+from .soft_delete import SoftDelteModel
 if TYPE_CHECKING:  # Only imports the below statements during type checking
    from .user import User
 
-class Record(db.Model):
+class Record(db.Model,SoftDelteModel):
     id = Column(Integer, primary_key=True)
     operation_id = mapped_column(ForeignKey('operation.id'))
     user_id = mapped_column(ForeignKey('user.id'))

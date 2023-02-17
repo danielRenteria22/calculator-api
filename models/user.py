@@ -10,8 +10,9 @@ from main import db
 from .status import Status
 from .operation import Operation
 from .record import Record
+from .soft_delete import SoftDelteModel
 
-class User(db.Model):
+class User(db.Model,SoftDelteModel):
     id = Column(Integer, primary_key=True)
     username = Column(String)
     password_hash = Column(String)

@@ -2,7 +2,9 @@ from __future__ import annotations
 import enum
 
 from sqlalchemy import Integer,Enum,Double,Column
+
 from main import db
+from .soft_delete import SoftDelteModel
 
 class OperationTypes(enum.Enum):
     ADDITION = 'ADDITION'
@@ -13,7 +15,7 @@ class OperationTypes(enum.Enum):
     RANDOM_STRING = 'RANDOM_STRING'
     ADD_CREDIT='ADD_CREDIT'
 
-class Operation(db.Model):
+class Operation(db.Model,SoftDelteModel):
     id = Column(Integer, primary_key=True)
     cost = Column(Integer)
     type = Column(Enum(OperationTypes))
