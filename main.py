@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from controllers.jwt_controller import JWTController
 from flask_bcrypt import Bcrypt
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABSE_URI')
@@ -20,6 +21,8 @@ db = SQLAlchemy(app)
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 JWTController.configureJWT()
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # All models from migration
 from models.operation import Operation
