@@ -54,7 +54,7 @@ class OperationController:
                 },
                 'oder_by': {
                     'type': 'string',
-                    'enum': ['created_by','operation_type','amount']
+                    'enum': ['operation_type','amount']
                 },
                 'order': {
                     'type': 'string',
@@ -150,9 +150,13 @@ class OperationController:
 
         try:
             page = query.paginate(page=int(body['page']), per_page=int(body['items_per_page']))
+            total_records = page.total
+            total_pages = page.pages
             data = {
                 'records': [r.to_json() for r in page.items],
-                'next_page': page.has_next
+                'next_page': page.has_next,
+                'total_records': total_records,
+                'total_pages': total_pages
             }
             return responde(200,False,'Records fetched correctly',data)
         except Exception as e:
