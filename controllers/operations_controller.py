@@ -117,6 +117,22 @@ class OperationController:
             db.session.add(failed_record)
             db.session.commit()
             return responde(200,True,'Error in the operation',str(e))
+        
+    @staticmethod
+    def delete_record(id):
+        verify_jwt_in_request()
+        claims = get_jwt()['sub']
+        user = User.get_by_id(claims['user_id'])
+        record = Record.query.get(id)
+        if(record.user_id != user.id):
+            return responde(401,'Not auhtorized',None)
+        if not record:
+            return responde(404,True,'Record not found',None)
+        
+        print(record.query_class)
+        record.deleted = True
+        db.session.commit()
+        return responde(200,True,'Record was deleted',None)
 
     @staticmethod
     def get_records():

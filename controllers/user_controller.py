@@ -80,7 +80,8 @@ class UserController:
             return responde(401,True,'Invalid credentials',None)
         data = {
             'access_token': create_access_token(user.id),
-            'refresh_token': create_refresh_token(user.id)
+            'refresh_token': create_refresh_token(user.id),
+            'balance': user.balance()
         }
         return responde(200,False,'Successful login',{'access_token': data})
 

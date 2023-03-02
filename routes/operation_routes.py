@@ -12,4 +12,8 @@ def execute(): return OperationController.perform_operation()
 @jwt_required()
 @operation_routes.route('/list',methods = ['POST'])
 def list(): return OperationController.get_records()
+
+@jwt_required()
+@operation_routes.route('/<id>',methods = ['DELETE'])
+def delete_record(id): return OperationController.delete_record(id)
     

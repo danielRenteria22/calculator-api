@@ -1,5 +1,6 @@
 from sqlalchemy import Column,Boolean
 from flask_sqlalchemy.query import Query
+from main import db
 
 class QueryWithSoftDelete(Query):
     _with_deleted = False

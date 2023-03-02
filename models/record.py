@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship, mapped_column
 
 from main import db
 from .operation import Operation
-from .soft_delete import SoftDelteModel
+from .soft_delete import SoftDelteModel, QueryWithSoftDelete
 if TYPE_CHECKING:  # Only imports the below statements during type checking
    from .user import User
 
@@ -18,6 +18,7 @@ class Record(db.Model,SoftDelteModel):
     user_balance = Column(Integer)
     operation_response = Column(String)
     user = relationship('User',back_populates='records')
+    query_class = QueryWithSoftDelete
     
     def __init__(self,operation: Operation,user: User,operation_response: int, user_balance: int,amount: int = None) -> None:
         self.operation = operation
@@ -29,7 +30,9 @@ class Record(db.Model,SoftDelteModel):
         self.operation_id = operation.id
 
     def get_last_user_record(user: User) -> Record:
-        record = db.session.query(Record).filter(Record.user==user).order_by(-Record.id).first()
+        record = Record.query.with_deleted().filter(Record.user==user)\
+            .order_by(-Record.id)\
+            .first()
 
         return record
 
